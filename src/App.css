@@ -1,0 +1,150 @@
+
+.page{
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    left: 0; 
+    top: 0;
+    overflow: none;
+    display: grid;
+    grid-template-rows: 100px 1fr;
+    background: linear-gradient(#558cf4,#558cf466)
+}
+
+.options{
+    height: 100%;
+    grid-row: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.canvasContainer{
+    width: calc(100% - 20px);
+    height: calc(100% - 10px);
+    margin: 0px auto;
+    background: rgb(40,40,40);
+    grid-row: 2;
+    border-radius: 5px;
+    position: relative;
+}
+
+button{
+    background: rgb(40,40,40);
+    color: rgba(255,255,255,0.9);
+    padding: 20px;
+    padding-inline: 15px;
+    font-size: 18px;
+    outline: none;
+    border: 1px solid rgb(40,40,40);
+    margin-inline: 10px;
+    border-radius: 5px;
+    min-width: 100px;
+}
+
+button:hover{
+    cursor: pointer;
+    background: rgb(50,50,50);
+    color: white;
+}
+
+button[data-active="true"]{
+ 
+}
+
+.icon{
+    margin-left: 10px;
+    transform: translateY(3px);
+    color: #558cf4; 
+}
+
+
+.sliders{
+    position: absolute;
+    width: 100%;
+    bottom: 30px;
+    display: flex; 
+    justify-content: space-around;
+    align-items: center;
+    height: 100px;
+}
+
+.slider{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.sliderLabel{
+    color: #558cf4;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 22px;
+}
+
+.sliderLabel{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.number{
+    font-size: 16px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 10px;
+}
+
+
+.menuIcon{
+    display: none;
+
+}
+
+@media (max-width: 960px) {
+    .sliders{
+        flex-direction: column;
+        height: 100vh;
+        z-index: 100;
+        width: 100vw;
+        position: fixed;
+        left: 0; top: 0;
+        background: rgb(50,50,50);
+        padding-top: 20px;
+        padding-bottom: 100px;
+        transition: 0.4s;
+        transform: translateY(-100%);
+    }
+    .sliders[data-show = 'true']{
+        transform: translateY(0%);
+    }
+    .slider{
+        height: 50px;
+        margin-bottom: 15px;
+    }
+    .menuIcon{
+        display: block;
+        color: white;
+        font-size: 40px;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+    }
+
+    button{
+        font-size: 16px;
+        padding: 5px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        height: calc(100% - 10px);
+        margin-inline: 10px;
+    }
+    button:nth-child(2){
+        margin-inline: 0px;
+    }
+}
