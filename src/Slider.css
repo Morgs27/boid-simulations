@@ -1,0 +1,69 @@
+
+/* Sliders Container */
+.sliders{
+    position: absolute;
+    width: 100%;
+    bottom: 30px;
+    display: flex; 
+    justify-content: space-around;
+    align-items: center;
+    height: 100px;
+    color: #558cf4;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Slider Container */
+.slider{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: auto;
+}
+
+/* Current Value Of Slider Displayed Underneath */
+.value{
+    display: flex;
+    justify-content: center;
+    width: 130px;
+
+    margin-top: 20px;
+    color: #558cf4
+}
+
+/* Slider Title Displayed Above */
+.sliderTitle{
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+/* Push Sliders into slidedown modal on small screens */
+@media (max-width: 960px) {
+    .sliders{
+        flex-direction: column;
+        height: calc(100vh - 100px);
+        padding-bottom: 100px;
+        z-index: 100;
+        width: calc(100vw);
+        position: fixed;
+        left: 0; top: 0;
+        background: rgb(50,50,50);
+        transition: 0.4s;
+        transform: translateY(-100%);
+
+    }
+    .sliders[data-show = 'true']{
+        transform: translateY(0%);
+    }
+    .menuIcon{
+        display: block;
+        color: white;
+        font-size: 40px;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+    }
+}
+

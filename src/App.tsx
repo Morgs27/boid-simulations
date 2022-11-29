@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 import './App.css'
-import { FaChevronDown, FaCheck, FaBars } from 'react-icons/fa'
+import { FaAngleLeft , FaAngleRight} from 'react-icons/fa'
+import { Slider } from './Slider'
 
 type record = {
   x: number
@@ -15,13 +16,14 @@ type boid = {
   dx: number
   dy: number
   history: record[]
+  color: string
 }
 
 function App() {
 
   var boids: Array<boid>  
 
-  const [numBoids, setNumBoids] = useState(200) // Total Number of boids
+  const [numBoids, setNumBoids] = useState(150) // Total Number of boids
   const [speedLimit, setSpeedLimit] = useState(15) // Max Speed of boid
   const [visualRange, setVisualRange] = useState(75) // Visual range of boid
 
@@ -35,16 +37,35 @@ function App() {
   const canvas = useRef<HTMLCanvasElement>(null) // Refrence to canvas
   const [screenDimensions, setScreenDimensions] = useState({width: 150, height: 150}) // Screen dimensions
 
+  // Visible Options
   const [tail, setTail] = useState(true)
   const [arrowVisible, setArrowVisible] = useState(true)
+  const [tailWidth, setTailWidth] = useState(0)
+  const [headSize, setHeadSize] = useState(1)
+  const [tailLifetime, setTailLifetime] = useState(50)
 
+  // Colour Options + Themes
+  const defaultTheme = ['#558cf4']
+  const purple = ['#440099','#ffffff','#ece6f5','#c7b3e0','	#8f66c2']
+  const christmas =['#d4af37', '#aaa9ad', '#f3f6f4', '#cc0000', '	#274e13']
+  const fire = ['#ffff00','	#ffcc00', '#ff9900', '#ff6600', '#ff3300']
+  const bright = ['#8582f2', '#eff282', '#f282d9','#acf282','#f2b182']
+  const neon = ['#ff1e76','	#4280ff','#31dab7','#0af9fe','#3202c5']
+  const themes = [defaultTheme,neon, purple, fire, bright,christmas]
+
+  const [colorScheme, setColorTheme] = useState(0)
+
+  // Menu Active toggle for mobile devices
   const [menuActive, setMenuActive] = useState(false)
 
-  // Toggle Rules
+  // Mouse Interaction effect toggle
+  const [mouseEffect, setMouseEffect] = useState(true)
+
+  // Rules Options
   const [towardsCenter, setTowardsCenter] = useState(true)
   const [avoidOtherBoids, setAvoidOthersBoids] = useState(true)
 
-  // Create Boids 
+  // Create array of boid type with unique Id and random-ish position + velocity
   function initBoids() { 
 
     boids = Array(numBoids).fill('').map(() => {
@@ -54,7 +75,8 @@ function App() {
         y: Math.random() * screenDimensions.height,
         dx: Math.random() * 10 - 5,
         dy: Math.random() * 10 - 5,
-        history: []
+        history: [],
+        color: themes[colorScheme][Math.floor(Math.random()*themes[colorScheme].length)]
       } 
     })
 
@@ -126,6 +148,26 @@ function App() {
     boid.dy += moveY * seperationFactor;
   }
 
+  function avoidMouseFollow(boid: boid){
+    var mouseSeperationDistance = 200;
+
+    var mouseFollow = document.querySelector('.mouseFollow');
+
+    let circleX = parseInt(mouseFollow.style.left.replace("px",""))
+    let circleY = parseInt(mouseFollow.style.top.replace("px",""))
+
+    let moveX = 0;
+    let moveY = 0;
+    
+    if (distance(boid,{x: circleX, y:circleY}) < mouseSeperationDistance){
+        moveX += boid.x - circleX;
+        moveY += boid.y - circleY;
+    }
+
+    boid.dx += moveX * seperationFactor;
+    boid.dy += moveY * seperationFactor;
+  }
+
   // Find the average velocity of the other boids nearby and adjust velocity slightly
   function matchVelocity(boid: boid) {
 
@@ -183,18 +225,21 @@ function App() {
       ctx.translate(boid.x, boid.y);
       ctx.rotate(angle);
       ctx.translate(-boid.x, -boid.y);
-      ctx.fillStyle = "#558cf4";
+      ctx.fillStyle = boid.color;
       ctx.beginPath();
       ctx.moveTo(boid.x, boid.y);
-      ctx.lineTo(boid.x - 15, boid.y + 5);
-      ctx.lineTo(boid.x - 15, boid.y - 5);
+      let scaledX = headSize * 15
+      let scaledY = headSize * 5
+      ctx.lineTo(boid.x - scaledX, boid.y + scaledY);
+      ctx.lineTo(boid.x - scaledX, boid.y - scaledY);
       ctx.lineTo(boid.x, boid.y);
       ctx.fill();
       ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
     // If tail is active render previous points
     if (tail) {
-      ctx.strokeStyle = "#558cf466";
+      ctx.lineWidth = tailWidth;
+      ctx.strokeStyle = boid.color + '66';
       ctx.beginPath();
       ctx.moveTo(boid.history[0].x, boid.history[0].y);
       for (const point of boid.history) {
@@ -213,6 +258,7 @@ function App() {
       // Update the velocities according to each rule
       if (towardsCenter){flyTowardsCenter(boid)}
       if (avoidOtherBoids){avoidOthers(boid)}
+      if (mouseEffect){avoidMouseFollow(boid)}
       matchVelocity(boid);
       limitSpeed(boid);
       keepWithinBounds(boid);
@@ -221,7 +267,7 @@ function App() {
       boid.x += boid.dx;
       boid.y += boid.dy;
       boid.history.push({x : boid.x, y: boid.y})
-      boid.history = boid.history.slice(-50);
+      boid.history = boid.history.slice(-1 * tailLifetime);
 
     }) 
       
@@ -249,55 +295,105 @@ function App() {
     // Schedule the main animation loop
     window.requestAnimationFrame(animationLoop);
  
-  }, [screenDimensions, arrowVisible, numBoids, speedLimit, visualRange, centeringFactor, matchingFactor, seperationDistance, seperationFactor, tail, towardsCenter, avoidOtherBoids]);
+  }, [screenDimensions, tailLifetime, colorScheme, mouseEffect, tailWidth, headSize, arrowVisible, numBoids, speedLimit, visualRange, centeringFactor, matchingFactor, seperationDistance, seperationFactor, tail, towardsCenter, avoidOtherBoids]);
 
   // Set Screen Dimensions On First Load
   useEffect(() => {
     setScreenDimensions({width: screen.current.offsetWidth, height: screen.current.offsetHeight})
   }, [])
 
+  // Setup up mouse follow circle
+  document.addEventListener('mousemove', (e) => {
+      let mouseFollow = document.querySelector('.mouseFollow');
+      mouseFollow.style.top = (e.clientY - 85)+ 'px';
+      mouseFollow.style.left = e.clientX + 'px';
+
+  })
+
+  function genterateLinearGradient(){
+    return '#558cf4'
+    let gradient = 'linear-gradient('
+    themes[colorScheme].forEach((colour,index) => {
+      if (index != 0){
+        gradient += ','
+      }
+      gradient += ( colour + '90')
+    })
+    return gradient + ')'
+  }
+
+
   return (
     <>
-    <div className='page'>
-      <div className='options'>
-        <button data-active = {arrowVisible} onClick={() => setArrowVisible(!arrowVisible)} className="title">Show Arrow {arrowVisible ? <FaCheck className='icon'/> : null }</button>
-        <button data-active = {tail} onClick={() => setTail(!tail)} className="title">Show Tail {tail ? <FaCheck className='icon'/> : null }</button>
-        <button data-active = {towardsCenter} onClick={() => setTowardsCenter(!towardsCenter)}>Move Towards Center {towardsCenter ? <FaCheck className='icon'/> : null }</button>
-        <button data-active = {avoidOtherBoids} onClick={() => setAvoidOthersBoids(!avoidOtherBoids)}>Avoid Other Boids {avoidOtherBoids ? <FaCheck className='icon'/> : null }</button>
+    <div className='page' style = {{background: genterateLinearGradient()}}>
 
-      </div>
       <div id = 'screen' className="canvasContainer" ref = {screen}>
+
+        <div className="mouseFollow"></div>
+
+        <div className='options'>
+
+          <button onClick={() => setArrowVisible(!arrowVisible)} className="title">{arrowVisible ? 'Hide Arrows'  : 'Show Arrows' }</button>
+
+          <button onClick={() => setTail(!tail)} className="title">{tail ?  "Hide Tails" : 'Show Tails' }</button>
+
+          <button onClick={() => setMouseEffect(!mouseEffect)}>{mouseEffect ?  'Disable Mouse Interaction': 'Enable Mouse Interaction' }</button>
+
+        </div>
+
         <canvas ref = {canvas} id="boids" width="150" height="150"></canvas>
+
         <div className="sliders" data-show = {menuActive}>
-          <div className="slider">
-            <input value = {numBoids} className = 'slider' onChange = {(e) => {setNumBoids(parseInt(e.target.value))}} type = 'range' name = "totalBoids" min = "1" max = "500"></input>
-            <label className = 'sliderLabel' htmlFor="totalBoids">Total Boids <div className="number">{numBoids}</div></label>
-          </div>
 
-          <div className="slider">
-            <input value = {speedLimit} className = 'slider' onChange = {(e) => {setSpeedLimit(parseInt(e.target.value))}} type = 'range' name = "totalBoids" min = "1" max = "100"></input>
-            <label className = 'sliderLabel' htmlFor="totalBoids">Speed Limit <div className="number">{speedLimit}</div></label>
-          </div>
+          <Slider  value={numBoids} min={1} max={500} setState={setNumBoids} title={'Number of Boids'}></Slider>
 
-          <div className="slider">
-            <input value = {visualRange} className = 'slider' onChange = {(e) => {setVisualRange(parseInt(e.target.value))}} type = 'range' name = "totalBoids" min = "10" max = "1000"></input>
-            <label className = 'sliderLabel' htmlFor="totalBoids">Visual Range <div className="number">{visualRange}</div></label>
-          </div>
+          <Slider  value={seperationDistance} min={1} max={100} setState={setSeperationDistance} title={'Seperation Distance'}></Slider>
 
-          <div className="slider">
-            <input value = {centeringFactor * 1000} className = 'slider' onChange = {(e) => {setCenteringFactor(parseInt(e.target.value)/1000)}} type = 'range' name = "totalBoids" min = "1" max = "10"></input>
-            <label className = 'sliderLabel' htmlFor="totalBoids">Centering Factor <div className="number">{centeringFactor * 1000}</div></label>
-          </div>
+          {/* Colour Selector */}
+          <div className="colourTheme">
+            <div className="title">Colour Theme</div>
+            
+            <div className="colours">
+              {colorScheme > 0 ? 
+                <div className="arrow" onClick = {() => {
+                  setColorTheme(colorScheme - 1)
+                }}><FaAngleLeft/></div>
+                : 
+                <div className="arrow" style = {{opacity: 0.3}}><FaAngleLeft/></div>
+                }
+              {
+                themes[colorScheme].map((theme) => {
+                  return(
+                    <div className='colour' style = {{backgroundColor: theme}}></div>
+                  )
+                })
+              }
+              {colorScheme < (themes.length - 1) ? 
+              <div className="arrow" onClick = {() => {
+                setColorTheme(colorScheme + 1)
+              }}><FaAngleRight/></div>
+              : 
+              <div className="arrow" style = {{opacity: 0.3}}><FaAngleRight/></div>
+              }
+            </div>
 
-          <div className="slider">
-            <input value = {matchingFactor * 100} className = 'slider' onChange = {(e) => {setMatchingFactor(parseInt(e.target.value)/100)}} type = 'range' name = "totalBoids" min = "1" max = "10"></input>
-            <label className = 'sliderLabel' htmlFor="totalBoids">Matching Factor <div className="number">{matchingFactor * 100}</div></label>
           </div>
-          <div></div>
+          <Slider  value={visualRange} min={10} max={300} setState={setVisualRange} title={'Group Bais'}></Slider>
+
+          <Slider  value={tailLifetime} min={2} max={800} setState={setTailLifetime} title={'Tail Lifetime'}></Slider>
+
         </div>
 
       </div>
-      <div className="menuIcon" onClick={() => {setMenuActive(!menuActive)}}><FaBars></FaBars></div>
+
+      {/* Menu Icon For Mobile Support */}
+      <div className="menuIcon" onClick={() => {setMenuActive(!menuActive)}}>
+        <div className="hamburger" data-active = {menuActive} id="hamburger-6">
+          <span className="line"></span>
+          <span className="line"></span>
+          <span className="line"></span>
+        </div>
+      </div>
 
     </div>
     </>
@@ -308,7 +404,7 @@ function App() {
 export default App
 
 // Distance between 2 points formula 
-function distance(boid1: boid, boid2: boid) {
+function distance(boid1: boid, boid2: boid | any) {
   return Math.sqrt(
     (boid1.x - boid2.x) * (boid1.x - boid2.x) +
       (boid1.y - boid2.y) * (boid1.y - boid2.y),
