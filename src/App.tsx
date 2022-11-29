@@ -34,7 +34,7 @@ function App() {
   const [seperationFactor, setSeperationFactor] = useState(0.05) // Rate at which velocity is changed to keep boids apart
 
   const screen = useRef<HTMLDivElement>(null) // Reference to canvas container
-  const canvas = useRef<HTMLCanvasElement>(null) // Refrence to canvas
+  const canvas = useRef<HTMLCanvasElement>() // Refrence to canvas
   const [screenDimensions, setScreenDimensions] = useState({width: 150, height: 150}) // Screen dimensions
 
   // Visible Options
@@ -59,7 +59,7 @@ function App() {
   const [menuActive, setMenuActive] = useState(false)
 
   // Mouse Interaction effect toggle
-  const [mouseEffect, setMouseEffect] = useState(true)
+  const [mouseEffect, setMouseEffect] = useState(!isTouchDevice())
 
   // Rules Options
   const [towardsCenter, setTowardsCenter] = useState(true)
@@ -151,10 +151,11 @@ function App() {
   function avoidMouseFollow(boid: boid){
     var mouseSeperationDistance = 200;
 
-    var mouseFollow = document.querySelector('.mouseFollow');
+    var mouseFollow = document.querySelector<HTMLElement>('.mouseFollow') ;
 
     let circleX = parseInt(mouseFollow.style.left.replace("px",""))
     let circleY = parseInt(mouseFollow.style.top.replace("px",""))
+    
 
     let moveX = 0;
     let moveY = 0;
@@ -272,7 +273,9 @@ function App() {
     }) 
       
     // Clear the canvas and redraw all the boids in their current positions
-    const ctx = document.getElementById('boids').getContext("2d");
+    const canvaseElm = document.getElementById('boids') as HTMLCanvasElement;
+    const ctx = canvaseElm?.getContext("2d");
+
     // Clear the canvas
     ctx.clearRect(0, 0,screenDimensions.width, screenDimensions.height);
     // Redraw boids
@@ -304,24 +307,12 @@ function App() {
 
   // Setup up mouse follow circle
   document.addEventListener('mousemove', (e) => {
-      let mouseFollow = document.querySelector('.mouseFollow');
+
+      let mouseFollow = document.querySelector<HTMLElement>('.mouseFollow');
       mouseFollow.style.top = (e.clientY - 85)+ 'px';
       mouseFollow.style.left = e.clientX + 'px';
 
   })
-
-  function genterateLinearGradient(){
-    return '#558cf4'
-    let gradient = 'linear-gradient('
-    themes[colorScheme].forEach((colour,index) => {
-      if (index != 0){
-        gradient += ','
-      }
-      gradient += ( colour + '90')
-    })
-    return gradient + ')'
-  }
-
 
   return (
     <>
@@ -337,7 +328,9 @@ function App() {
 
           <button onClick={() => setTail(!tail)} className="title">{tail ?  "Hide Tails" : 'Show Tails' }</button>
 
-          <button onClick={() => setMouseEffect(!mouseEffect)}>{mouseEffect ?  'Disable Mouse Interaction': 'Enable Mouse Interaction' }</button>
+          {!isTouchDevice() ? 
+                    <button onClick={() => setMouseEffect(!mouseEffect)}>{mouseEffect ?  'Disable Mouse Interaction': 'Enable Mouse Interaction' }</button>
+          : null}
 
         </div>
 
@@ -409,4 +402,10 @@ function distance(boid1: boid, boid2: boid | any) {
     (boid1.x - boid2.x) * (boid1.x - boid2.x) +
       (boid1.y - boid2.y) * (boid1.y - boid2.y),
   );
+}
+
+// Check if device is touchScreen
+function isTouchDevice() {
+  return (('ontouchstart' in window) ||
+     (navigator.maxTouchPoints > 0))
 }

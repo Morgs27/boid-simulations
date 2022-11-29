@@ -11,27 +11,28 @@ type SliderProps = {
 
 
 export function Slider({value, min, max , title, setState } : SliderProps){
+    const styles = {
+        track: {
+            width: 150,
+            height: 5,
+            background: '#558cf4'
+        },
+        active: {
+            background: '#558cf4'
+        },
+        thumb: {
+            width: 15,
+            height: 15,
+            background: '#558cf4'
+        }
+    }
 
     return(
         <>
         <div className="slider">
             <div className="sliderTitle">{title}</div>
                 <SliderImport
-                    styles = {{
-                        track: {
-                            width: 150,
-                            height: 5,
-                            background: '#558cf4'
-                        },
-                        active: {
-                            background: '#558cf4'
-                        },
-                        thumb: {
-                            width: 15,
-                            height: 15,
-                            background: '#558cf4'
-                        }
-                    }}
+                    styles = {styles}
                     axis = "x"
                     xmax = {max}
                     xmin = {min}

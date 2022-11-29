@@ -25,7 +25,7 @@
 /* Mouse Following Div */
 .mouseFollow{
     position: absolute;
-    width: 100px;
+    width: 10px;
     height: 10px;
     display: none;
 }
@@ -64,28 +64,6 @@ button{
 button:hover{
     cursor: pointer;
     background: rgb(50,50,50);
-}
-
-/* Button Sytles on small pages */
-@media (max-width: 960px) {
-    .options{
-        flex-direction: column;
-        height: 200px;
-        font-size: 30px !important;
-    }
-    /* button{
-        font-size: 16px;
-        padding: 5px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-evenly;
-        align-items: center;
-        height: calc(100% - 10px);
-        margin-inline: 10px;
-    }
-    button:nth-child(2){
-        margin-inline: 0px;
-    } */
 }
 
 /* Colour Selector */
