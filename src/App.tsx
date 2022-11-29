@@ -38,7 +38,7 @@ function App() {
   const [screenDimensions, setScreenDimensions] = useState({width: 150, height: 150}) // Screen dimensions
 
   // Visible Options
-  const [tail, setTail] = useState(true)
+  const [tail, setTail] = useState(false)
   const [arrowVisible, setArrowVisible] = useState(true)
   const [tailWidth, setTailWidth] = useState(0)
   const [headSize, setHeadSize] = useState(1)
@@ -101,7 +101,7 @@ function App() {
     }
   }
 
-  // 
+  // Fly boids towards center of nearby boids
   function flyTowardsCenter(boid: boid) {
 
     let centerX = 0;
