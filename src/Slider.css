@@ -41,8 +41,8 @@
 @media (max-width: 960px) {
     .sliders{
         flex-direction: column;
-        height: calc(100vh - 100px);
-        padding-bottom: 100px;
+        height: calc(100vh - 150px);
+        padding-bottom: 150px;
         z-index: 100;
         width: calc(100vw);
         position: fixed;

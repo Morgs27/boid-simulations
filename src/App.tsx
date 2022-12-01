@@ -25,7 +25,7 @@ function App() {
 
   const [numBoids, setNumBoids] = useState(150) // Total Number of boids
   const [speedLimit, setSpeedLimit] = useState(15) // Max Speed of boid
-  const [visualRange, setVisualRange] = useState(75) // Visual range of boid
+  const [visualRange, setVisualRange] = useState(140) // Visual range of boid
 
   const [centeringFactor, setCenteringFactor] = useState(0.005) // Rate at which velocity is changed to center boid
   const [matchingFactor, setMatchingFactor] = useState(0.05) // Rate at which velocity is changed to match the velocity of surounding biods
@@ -84,7 +84,7 @@ function App() {
 
   // Keep boids within the screen. On reaching an edge velocity is reversed
   function keepWithinBounds(boid: boid) {
-    const margin = 200;
+    const margin = 100;
     const turnFactor = 1;
 
     if (boid.x < margin) {
@@ -316,7 +316,7 @@ function App() {
 
   return (
     <>
-    <div className='page' style = {{background: genterateLinearGradient()}}>
+    <div className='page' >
 
       <div id = 'screen' className="canvasContainer" ref = {screen}>
 
