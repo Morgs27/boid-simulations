@@ -53,7 +53,7 @@ function App() {
   const neon = ['#ff1e76','	#4280ff','#31dab7','#0af9fe','#3202c5']
   const themes = [defaultTheme,neon, purple, fire, bright,christmas]
 
-  const [colorScheme, setColorTheme] = useState(0)
+  const [colorScheme, setColorTheme] = useState(1)
 
   // Menu Active toggle for mobile devices
   const [menuActive, setMenuActive] = useState(false)
